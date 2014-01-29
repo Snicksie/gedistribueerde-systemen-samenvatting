@@ -1,0 +1,19 @@
+\documentclass[../samenvatting.tex]{subfiles}
+\begin{document}
+
+\chapter{Transacties en Concurrency Control}
+Transacties zorgen dat alle objecten consistent blijven bij het uitvoeren van meerdere acties en bij server crashes. Een transactie is een set van acties die als één moeten worden uitgevoerd. Dit kan onder andere gebeuren door synchronisatie, waardoor er maar één transactie tegelijk kan uitgevoerd worden. In failure model for transaction van Lampson gaat men uit van het feit dat writes naar permanente storage kan falen, servers af en toe crashen en er geen garantie is dat berichten aankomen. Een aantal gevallen, disasters, worden niet gecoverd: het schrijven naar een foutief blok, forged en undetected faulty messages.
+
+Een transactie is een sequentie van requests die atomisch gezien wordt door de client. De ACID properties zijn: Atomicity, Consistency, Isolation, Durability. 
+
+Twee belangrijke dingen binnen concurrency control zijn the lost update problem en inconsistent retrieval (write of read op het verkeerde tijdstip). Na een commit/abort moet er rekening gehouden worden met dirty reads (een interleaving waarin een geaborte transactie iets heeft geschreven dat een andere commit heeft gelezen) en moet de transactie met een dirty read wachten met committen tot de andere transactie is gecommit. Een cascading abort treedt op als een transactie geabort wordt en daardoor ook alle transacties met dirty reads. Dit is te voorkomen door transacties geen dirty reads te laten doen. Premature writes zorgen ervoor dat de before image van een object incorrect kan zijn (als een write gebeurt voordat de transactie gecommit is, maar de transactie wordt gecommit, dan zal door de abort van een andere transactie deze ongedaan gemaakt worden). Write operaties moeten dus gedelayed worden totdat eerdere transacties gecommit of geabort zijn.
+
+Geneste transacties zijn transacties die bestaan uit transacties. De top-level transactie bevat diverse sub-transacties. De parent-transactie kiest wat er gebeurt als een sub-transactie faalt. Een parent-transactie mag pas committen/aborten als al zijn sub-transacties zijn uitgevoerd (commit of abort). Als een parent abort, zullen alle sub-transacties ook aborten. Een parent hoeft niet te aborten als een van zijn sub-transacties abort. Een sub-transactie is pas permanent als de top-level transactie heeft gecommit.
+
+Met behulp van een lock kan een bepaald object aan één transactie gekoppeld worden. Om serialiseerbare transacties te hebben, mag een transactie geen nieuwe locks nemen als het een lock gereleased heeft. De growing fase is de fase waarin nieuwe locks worden geacquired. Daarna is er een shrinking fase. In totaal krijg je dan two-phase locking. Bij strict two-phase locking worden locks vastgehouden totdat de transactie op permanente storage staat.
+
+Met behulp van read en write locks kunnen we meer concurrency toestaan. Een read lock wordt gezet als een transactie een object leest. Een read lock zetten op een object dat al een read lock heeft is succesvol. Een write lock mag enkel gezet worden als er geen read lock is van een andere transactie. Een lock zetten op een object met een write lock mag niet en er moet dus gewacht worden. Als een transactie eerst een readlock heeft, kan deze gepromoveerd worden tot write lock. Bij een geneste transactie zal de parent alle locks erven van de sub-transacties bij het committen. Parents mogen niet tegelijk runnen met hun sub-transacties. Bij een abort worden alle locks weggegooid.
+
+Door locks kunnen deadlocks optreden. Meestal wordt hiervoor deadlock detectie gebruikt. Met behulp van timeouts op locks (na een timeout kan een lock verbroken worden en wordt de transactie geaborted) kunnen deadlocks opgelost worden.
+
+\end{document}

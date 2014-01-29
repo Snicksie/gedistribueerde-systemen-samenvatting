@@ -1,0 +1,19 @@
+\documentclass[../samenvatting.tex]{subfiles}
+\begin{document}
+
+\chapter{Gedistribueerde transacties}
+Gedistribueerde transacties zijn transacties die over meerdere servers heen een resultaat hebben. Eén server neemt een Coördinator-rol. Deze houdt alle participanten bij van een transactie. Als er een nieuwe participant bijkomt wordt deze toegevoegd aan de informatie van de coördinator.
+
+In een one-phase commit protocol laat de coördinator aan alle participanten weten dat ze hun transactie moeten committen of aborten en herhaalt dit totdat alle participanten laten weten dat ze dit hebben gedaan. Hierin heeft de coördinator geen beslissende rol in het committen of aborten. 
+
+In het two-phase commit protocol kan iedere participant zijn eigen transactie aborten/committen. In de eerste fase vote iedere participant voor commit/abort. Als een participant commit vote, moet hij deze belofte ook kunnen waarmaken en moet deze preparen op permanente storage. In de tweede fase voert iedereen de gezamenlijke beslissing uit. Als een client vraagt de transactie te aborten, zal de coördinator dit direct doorgeven. Als een client vraagt de transactie te committen, zal de coördinator het two-phase commit protocol volgen. Met behulp van timeouts worden bepaalde falingen herkend. Iedere sub-transactie maakt onafhankelijk een beslissing over zijn children, maar geeft wel alle informatie over de children naar zijn parent. 
+
+Bij een hierarchisch two-phase commit protocol houdt de coördinator van het top-level enkel informatie bij over zijn directe descendants. In een flat two-phase commit protocol heeft de coördinator alle informatie over alle sub-transacties en vraagt aan iedere participant of een gegeven transactie gecommit kan worden, gegeven een abortlist van subtransacties. 
+
+In een gedistribueerde transactie zullen locks op een object lokaal woren bijgehouden. Door de verschillende volgorde van contacteren kan een bepaalde transactie op één server eerst zijn en op een andere later, waardoor deadlocks kunnen optreden. De eerste coördinator zal een globaal unieke timestamp koppelen aan een transactie en zal deze doorgeven aan de coördinator op iedere server. Om te voorkomen dat een deel van een transactie op één server eerder is en op een andere server later, moet er ook een globale validatie plaatsvinden. 
+
+Met gedistribueerde transacties kunnen er gedistribueerde deadlocks plaatsvinden. Er moet een globale wait-for graaf geconstrueerd worden, wat soms gebeurt door één coördinator aan te stellen, die regelmatig lokale wait-for grafen ontvangt en deze samenvoegt en op cycles checkt. Dit is geen optimale oplossing. Phantom deadlocks zijn cycles in de graaf waarin een bepaalde transactie een lock al vrijgegeven heeft, maar deze informatie niet bekend is, waardoor het lijkt dat er een deadlock is (die al opgelost is).
+
+Edge chasing/path pushing is een gedistribueerde manier om deadlocks op te sporen. Een server stuurt een probe als een transactie aan het wachten is op een bepaald object dat ook aan het wachten is. Deze probe volgt de edges van de graaf van de wait-for graaf (en volgt alle edges bij een shared lock). Er worden telkens twee berichten verzonden, één naar de coordinator van de transactie en één naar de server die het object waarop gewacht wordt beheert. Als een bepaalde server een transactie toegevoegd heeft die een cycle veroorzaakt, wordt de deadlock doorbroken door één van de transacties te aborten. De transactie met de laagste priority wordt geaborted, om te voorkomen dat meerdere transacties worden geabort. Deze priorities kunnen ook gebruikt worden om te bepalen of er een probe verstuurd wordt, een probe wordt enkel gestuurd als er op een lower-priority transactie wordt gewacht. Om te voorkomen dat er te weinig probes worden gestuurd, worden alle probes in een probe queue bijgehouden bij de transaction waar op gewacht wordt. 
+
+\end{document}

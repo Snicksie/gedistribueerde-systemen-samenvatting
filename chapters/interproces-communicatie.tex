@@ -1,0 +1,11 @@
+\documentclass[../samenvatting.tex]{subfiles}
+\begin{document}
+
+\chapter{Interproces Communicatie}
+
+UDP geeft een manier voor message passing. TCP voorziet een twee-richtingsstroom van informatie. 
+
+Het ontvangen en sturen kan synchroon of asynchroon gebeuren. De destination van een bericht is altijd een koppel van een internet adres en een lokale poort. Een name server vertaalt een naam in een server locatie (ip-adres). Integrity vereist dat berichten onveranderd en niet-verdubbeld aankomt, wat TCP voorziet. Ordering is nodig om de volgorde te bepalen van berichten.
+
+Marshalling is het proces waarin data-items worden omgezet zodat ze verstuurd kunnen worden over het netwerk. Unmarshalling is het terug omzetten van de verstuurde gegevens naar data-items. In Java wordt het marshallen gedaan door serialisatie. Ieder object wordt geserialized (recursief) totdat basis-types overblijven.
+\end{document}

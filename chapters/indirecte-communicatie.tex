@@ -1,0 +1,17 @@
+\documentclass[../samenvatting.tex]{subfiles}
+\begin{document}
+
+\chapter{Indirecte communicatie}
+
+Indirecte communicatie is communicatie door middel van een tussenmedium zonder directe koppeling tussen zender en ontvanger(s). Hier kan space ontkoppeling zijn (de zender kent de identiteit van de ontvanger niet) of time ontkoppeling (de zender en ontvanger hebben aparte lifetimes, onafhankelijk van elkaar).
+
+Group communication is een manier van communicatie waarin een bericht verstuurd wordt naar een groep, waarna alle members dit bericht krijgen. Gebruikers kunnen een groep joinen en leaven. Een message wordt altijd naar de gehele groep gestuurd, alle members krijgen dus een message aan. Een groep kan open zijn (buitenstaanders kunnen naar de groep sturen) of gesloten (enkel members kunnen naar de groep sturen). Een set groepen kan overlapping of non-overlapping zijn, meestal zijn overlappingen mogelijk. Deze groep communicatie moet reliable(integrity(maximaal 1x ontvangen), validity(message altijd ontvangen) en agreement(allen of geen)) zijn en vaak ook geordend. Er moeten ook operaties en updates zijn over de groep memberships (wie is member, wie verdwijnt/verschijnt).
+
+Publish-subscribe systemen worden ook wel gedistribueerde event-gebaseerde systemen genoemd. Publishers publiceren events, subscribers subscriben op voor hun interessante events. Er kan hier gewerkt worden vanuit filters door de subscribers of filters door de publishers (advertisement-model). Filters kunnen channel-based zijn (simpele filtering), topic-based (hierarchische organisatie van topics), content-based(geavanceerdere query's over het event) of type-based (objectgeorienteerd, filter op basis van type/attributen/methodes).
+
+Message queues zijn een point-to-point service waarbij indirectie wordt gebruikt. Het ontvangen kan op 3 manieren gebeuren: blocking receive (actief wachten tot er een bericht is), non-blocking receive (pollen of er een bericht is) of notify (event notification als er een bericht is). Berichten zijn persistent en zullen bewaard worden totdat ze verwerkt zijn. Ze garanderen dat berichten worden ontvangen en dat ze valid en uniek zijn.
+
+Shared memory approaches maken gebruik van een abstractie van shared memory. Gedistribueerd shared memory is een abstractie waarbij processen denken van 'gewoon' shared memory gebruik te maken, terwijl het systeem transparant updates doorvoert. Hierbij komen vaak replication problemen kijken. Er is hier geen marshalling nodig, omdat voor de processen het memory precies hetzelfde is.
+
+Tuple spaces maakt gebruik van processen die tuples in een tuple space plaatsen. Tuples worden terug opgehaald met behulp van pattern matching op de content. De \texttt{write} operatie plaatst één tuple in de tuple space. De \texttt{read} en \texttt{take} operatie lezen één tuple in de tuple space dat voldoet aan het pattern en blocken totdat een geldig tuple gevonden is.
+\end{document}

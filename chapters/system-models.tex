@@ -1,0 +1,29 @@
+\documentclass[../samenvatting.tex]{subfiles}
+\begin{document}
+
+\chapter{System Models}
+Modellen zijn nodig om een beschrijving te geven van een relevant aspect van gedistribueerde systemen.
+\begin{itemize}
+	\item Fysische modellen: geven aan wat de hardware compositie is.
+	\item Architecturale modellen: geven aan door welke computationele elementen bepaalde taken worden uitgevoerd.
+	\item Fundamentele modellen: een interaction model geeft aan hoe het systeem interageert, een failure model geeft aan hoe een systeem mag falen zonder problemen, een security model geeft aan hoe het systeem is beveiligd.
+\end{itemize}
+
+Om een architecturaal model op te stellen, moet gekeken worden naar de communicerende entities. Vanuit een systeem-perspectief zijn dit meestal processen, nodes of threads. Vanuit een software-perspectief zijn dit objecten, componenten (een volledig deelsysteem) en web services. 
+
+De communicatie kan gebeuren door interproces communicatie, waarbij gebruik gemaakt wordt door low-level message-passing, direct gebruik van socket programming en multicast communicatie. Remote invocatie is een eenvoudige manier, waarbij operaties remote uitgevoerd worden. Request-reply methodes zijn methodes waarbij de server en de client losstaande communicatie uitvoeren. Remote procedure calls zijn procedures die in de locale adres-space lijken te vallen, maar toch remote zijn. Deze bieden dus access- en location-transparancy. Remote Method Invocation gaat uit van gedistribueerde objecten, waarop operaties worden opgeroepen.
+
+Er zijn ook minder directe methodes, waar er space of time uncoupling is. Het gaat hier om group communication (one-to-many communicatie), publish-subscribe systemen, message queues, tuple spaces (processen plaatsen arbitraire items van gestructureerde data in een persistente plaats, readers kunnen patterns of interest gebruiken om relevante data te vinden en te gebruiken) en distributed shared memory.
+
+Gedistribueerde systemen kunnen met behulp van client-server architecturen of peer-to-peer architecturen communiceren.
+
+Placement houdt zich bezig met het juist plaatsen van servers en clients binnen een systeem. Services kunnen over meerdere servers verdeeld zijn. De objecten kunnen gedistribueerd of gerepliceerd zijn. Met behulp van caching kunnen objecten opgeslagen worden op een makkelijker bereikbaar locatie. Hierbij moet rekening gehouden worden met up-to-date houden van alle kopiën. Mobiele code geeft de mogelijkheid tot applets, waarbij de gebruiker het programma lokaal kan draaien. Mobile agents gaan van computer tot computer en draaien daar een programma. Dit is potentieel onveilig.
+
+Met behulp van layering kan een complex systeem in verschillende eenvoudigere lagen verdeeld worden. Een platform is de basis voor een gedistribueerd systeem.  Deze bieden een uniforme API voor verschillende hardware. Denk bijvoorbeeld aan Intel x86/windows, Intel x86/Linux of ARM/Symbian. Middleware is een laag die de heterogeniteit tussen platformen probeert weg te werken.
+
+Een tiered architectuur organiseert functionaliteit van een bepaalde layer en plaatst deze op de juiste servers en nodes. Hierin wordt bijvoorbeeld de presentation logic; application logic en data logic gescheiden.
+
+Thin clients is een manier om gebruikers een locale applicatie te geven, ook al staan de resources en logica remote.
+
+Een proxy pattern wordt gebruikt om location transparency te vergroten. De proxy staat in de locale address-space en stuurt de request door. Een brokerage pattern wordt gebruikt om een broker te voorzien, die een service matcht met de gevraagde server, zoals een RMI registry. 
+\end{document}

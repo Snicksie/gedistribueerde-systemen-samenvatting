@@ -1,0 +1,64 @@
+\documentclass[../samenvatting.tex]{subfiles}
+\begin{document}
+
+\chapter{Gedistribueerde filesystemen}
+Gedistribueerde filesystemen proberen gewone file-systemen te emuleren. 
+
+Files bevatten data en attributen(lengte, creation time, last read, last write, attribute timestamp, reference count, owner, filetype en ACL). Naast files, zit er ook metadata in een filesysteem, zoals directories en alle andere gegevens die nodig zijn voor het management van files. De basisoperaties op files zijn:
+\begin{itemize}
+	\item \texttt{open(name,mode)}
+	\item \texttt{create(name,mode)}
+	\item \texttt{close(filedes)}
+	\item \texttt{read(filedes,buffer,n)}
+	\item \texttt{write(filedes,buffer,n)}
+	\item \texttt{lseek(filedes,offset,whence)}(relatief/absoluut)
+	\item \texttt{unlink(name)} (remove link to file from directory; remove)
+	\item \texttt{link(name1,name2)} (maak nieuwe link naar file)
+	\item \texttt{stat(name,buffer)} (put file attributes in buffer)
+\end{itemize}
+
+Een filesysteem moet transparant zijn in access, location, mobility, performance en scaling. Concurrent file updates moeten mogelijk zijn(locking mogelijk). Vaak wordt file replicatie of caching gebruikt om de load te sharen en fault tolerance te verhogen. De interface moet heterogeniteit van OS en HW ondersteunen. Fault tolerance kan vaak gegarandeerd worden door at-most-once invocation semantiek of at-least-once invocatie met idempotente operaties. Een filesyteem moet consistent zijn, dus bij concurrency moet er uiteindelijk één versie overblijven en deze moet consistent zijn met de operaties die erop toegepast zijn. Het filesysteem moet ook performant genoeg zijn om mee te willen werken.
+
+Een filesysteem bestaat uit de volgende onderdelen:
+\begin{itemize}
+	\item Flat file service: implementeert operaties op de inhoud van files. Dit werkt enkel met een Unique File IDentifier en zal voor een nieuwe file een nieuwe identifier genereren.
+	\item Directory service: mapt tekst-namen van files op UFID's. Ook geeft het de mogelijkheid om directories te beheren en files in directories toe te voegen.
+	\item Client module: een client-module runt op iedere client en maakt een globale interface voor alle file operaties, onafhankelijk van lokaal/netwerk. Deze helpt ook bij het performant maken.
+	\item Flat file service interface: De RPC interface die wordt gebruikt door client modules. Hiervoor wordt de volgende (idempotente en stateless) interface gebruikt:
+	\begin{itemize}
+		\item Read(FileId, i, n) -> data
+		\item Write(FileId, i, Data)
+		\item Create() -> FileId \textbf{niet idempotent!}
+		\item Delete(FileId)
+		\item GetAttributes(FileId) -> Attr
+		\item SetAttributes(FileId,Attr)
+	\end{itemize}
+	\item Directory service interface: RPC interface voor de directory service. Bevat de volgende (bijna idempotente) operaties:
+	\begin{itemize}
+		\item Lookup(Dir,Name) -> FileId
+		\item AddName(Dir,Name,FileId)
+		\item UnName(Dir,Name)
+		\item GetNames(Dir,Pattern)
+	\end{itemize}
+	\item Hierarchisch filesysteem: directories zijn geordend in een tree-structuur. Iedere locatie kan beschreven worden door een path.
+	\item File Group: een collectie van files op een server (gelijkaardig aan een filesysteem in UNIX)
+\end{itemize}
+
+\section{Network File System}
+
+NFS is een virtueel filesysteem: locale en remote files zijn gelijk. File identifiers worden file handles genoemd. De file identifier bestaat uit de filesystem identifier, de i-node number van de file en het i-node generatienummer(wordt geincrementeerd als een nieuwe file met hetzelfde i-node nummer wordt gecreëerd). Iedere open file heeft een v-node, die een referentie bevat naar de index van de lokale file of de file handle van de remote file. Door NFS te implementeren in de UNIX-kernel, is het bestaan van NFS volledig transparant voor programma's. De NFS-interface bevat een combinatie van een directory service en een flat file service interface. Clients kunnen door te mounten remote filesystemen 'mappen' op hun lokale fileysteem. Een hard-mount blokkeert totdat het mounten succesvol is voltooid. Een soft-mount geeft een fout als na een aantal keer proberen het mounten faalt. Een lookup van een bepaalde directory/file gebeurt iteratief aan de hand van het pad. Iedere keer wordt één directory gelookup'd zodat mount points geen probleem geven. De auto-mounter in UNIX mount automatisch een mount point als deze niet gemount is.
+
+In UNIX worden blokken van files gecached om sneller te kunnen werken. Als de client een write stuurt, wordt deze eerst op schijf gezet voordat een reply wordt gestuurd (write-through), zodat de client zeker is dat de data opgeslagen is. Een andere mogelijkheid is de write met commit: data in de write wordt enkel in de memory cache opgeslagen, met een commit operatie wordt de data effectief op schijf gezet. De tweede variant voorkomt een performance bottleneck. De NFS client cachet gegevens van read, write, getattr, lookup en readdir, om minder requests te moeten sturen. Clients moeten de server pollen om te controleren of hun file nog up-to-date is, met een timestamp-methode, waarbij een nieuwe poll wordt gestuurd na een bepaalde freshness-interval. Een file is up-to-date als deze freshness-interval niet bereikt is of als de timestamp van last modification gelijk is gebleven. 
+
+Bio-deamons (block input-output) zorgen voor read-ahead en delayed-write operaties. Bij iedere operatie op de file wordt er automatisch een getattr piggyback gestuurd, om de load te verminderen. 
+
+\section{Andrew File System}
+
+AFS biedt een transparant filesysteem, evenals NFS. AFS kiest voor whole-file serving en whole-file caching, gebaseerd op het feit dat files meestal klein zijn, er veel vaker reads dan writes gebeuren, er meestal sequential access is, de meeste files door maar één user in gebruik zijn en file accesses meestal in bursts gebeuren (één file wordt vaak gereferenced in een korte tijd). 
+
+In een AFS systeem zijn er twee software componenten, Vice (server-proces dat in user-level draait) en Venus (proces dat op iedere client runt in user-level). Iedere client heeft een directory /cmu die alle shared files bevat. Venus beheert de cache op de client en verwijdert files die niet meer gebruikt worden indien nodig. Files zijn gegroepeerd in volumes. fid's bevatten het volume nummer, een NFS file handle en een uniqifier; deze fid's worden enkel gebruikt door Vice en Venus.
+
+Vice geeft bij iedere file handle ook een callback promise, als belofte dat het Venus zal inlichten bij updates van de file in kwestie. Deze hebben de status valid (nog geen update geweest) of cancelled (er is een update geweest). Na een heropstart van de computer wordt er eerst gecontroleerd of de callback promise tokens nog correct zijn. Deze callback promises worden enkel gecontroleerd als er een nieuwe 'open' komt en er een bepaalde tijd T geen controle is geweest. 
+
+AFS kan read-only replica's maken. Een bepaalde directory wordt dan gekopieerd en slechts één van de versies is de read-write versies, alle request worden naar die versie gestuurd. In AFS3 kunnen files ook partieel gecached worden. 
+\end{document}

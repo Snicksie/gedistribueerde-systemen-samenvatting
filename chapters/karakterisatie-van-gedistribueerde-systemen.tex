@@ -1,0 +1,38 @@
+\documentclass[../samenvatting.tex]{subfiles}
+\begin{document}
+
+\chapter{Karakterisatie van Gedistribueerde Systemen}
+
+Een gedistribueerd systeem is een systeem waarin componenten op verschillende computers enkel messages gebruiken om te communiceren. Dit heeft de volgende gevolgen:
+\begin{itemize}
+	\item Concurrency: standaard zullen verschillende taken tegelijk uitgevoerd worden. Hierbij moet rekening gehouden worden met concurrency-problemen.
+	\item No global clock: Alle aparaten hebben een aparte klok en kunnen niet volledig gesynchroniseerd worden. 
+	\item Independent failures: In gedistribueerde systemen kunnen systemen onafhankelijk van elkaar falen. Het systeem moet hierbij rekening houden.
+\end{itemize}
+
+Gedistribueerde systemen worden gebruikt om resources te kunnen sharen.
+
+Resouces in gedistribueerde systemen zijn geëncapsuleerd in computers en worden gemanaged door een programma met een communication interface. Het gaat hier vaak om een server die requests accepteert. Een request noemen we de invocatie van een operatie, een remote invocation is de volledige interactie tussen de client en de server.
+
+De belangrijkste uitdagingen bij gedistribueerde systemen zijn:
+\begin{itemize}
+	\item heterogeniteit: alle hardware en software die gebruikt wordt in het internet, zijn verschillend. Deze moeten met elkaar communiceren ondanks de verschillen. Middleware is een software layer die de heterogeniteit van de onderliggende lagen maskeert. Mobile code is code die suitable is voor alle computers, zoals java, met behulp van de JVM.
+	\item Openness: Gedistribueerde systemen moeten uitbreidbaar zijn en niet gebonden aan één implementatie. Interfaces moeten published zijn.
+	\item Security: resources moeten confidentiality, integrity en availability behouden. Firewalls zijn hiervoor niet voldoende.
+	\item Scalability: Een gedistribueerd systeem moet ook werkbaar blijven als het scaleert. Er moet rekening gehouden worden met het uitbreiden van de hardware, de performance loss van het distributie-karakter, het voorkomen van bottlenecks etc.
+	\item Failure handling: fouten moeten gedetecteerd worden en indien mogelijk zoveel mogelijk opgevangen worden (retransmissies, backups). Er moet een mogelijkheid zijn om te recoveren van fouten. Redundancy zorgt voor het tolereren van een bepaalde foutmarge.
+	\item Concurrency: Als twee operaties tegelijk uitgevoerd worden, moet het resultaat correct zijn. 
+	\item Transparency: De gebruiker moet zo min mogelijk merken dat het systeem gedistribueerd is.
+	\begin{itemize}
+		\item access transparency: local en remote heeft dezelfde operaties
+		\item location transparency: resources moeten toegankelijk zijn zonder hun locatie te kennen
+		\item concurrency transparency: verschillende processen moeten concurrent kunnen werken
+		\item replication transparency: replicatie moet mogelijk zijn zonder dat gebruikers hiermee rekening moeten houden
+		\item failure transparency: fouten in het systeem mogen niet zichtbaar zijn voor de gebruiker
+		\item mobility transparency: resources en client moeten kunnen verplaatsen zonder dat de operaties verstoord worden.
+		\item Performance transparency: systeem moet geconfigureerd kunnen worden zonder gebruikers het merken om performance te verhogen/verlagen
+		\item Scaling transparency: het systeem moet geschaald kunnen worden zonder de structuur en applicatie te veranderen.
+	\end{itemize}
+	\item Quality of Service: time-critical data moet op tijd verwerkt zijn.
+\end{itemize}
+\end{document}

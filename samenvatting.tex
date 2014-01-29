@@ -1,0 +1,98 @@
+\documentclass[a4paper,12pt,fleqn,final]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{float}
+\usepackage{lmodern}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{subcaption}
+\usepackage{chngcntr}
+\usepackage{tikz}
+\counterwithout{equation}{chapter}
+\usepackage{forloop}
+\usepackage{environ}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+\usepackage{subfiles}
+\newcounter{retained}\setcounter{retained}{0}
+\newcounter{shown}\setcounter{shown}{0}
+\newcounter{saveequation}
+\newcommand\recalleqn{%
+  \addtocounter{shown}{1}%
+  \setcounter{saveequation}{\value{equation}}%
+  \setcounter{equation}{\csname defeqnum\roman{shown}\endcsname}%
+  \csname defeq\roman{shown}\endcsname%
+  \setcounter{equation}{\value{saveequation}}%
+}
+\NewEnviron{equate}{%
+  \addtocounter{retained}{1}%
+  \expandafter\xdef\csname defeqnum\roman{retained}\endcsname{%
+                                                 \arabic{equation}}%
+  \expandafter\xdef\csname defeq\roman{retained}\endcsname{%
+    \noexpand\begin{equation}%
+    \noexpand\begin{split}%
+      \expandonce\BODY%
+    \noexpand\end{split}%
+    \noexpand\end{equation}}%
+  \csname defeq\roman{retained}\endcsname%
+}%
+\newcounter{equations}
+\newcommand{\listequations}{\forloop{equations}%
+                                    {0}%
+                                    {\value{equations} < \value{retained}}%
+                                    {\recalleqn}}
+
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[]{mathastext}
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+
+\titleformat{\section}
+  {\Large\bfseries}{ \thesection )}{1em}{}
+\titleformat{\subsection}
+  {\bfseries}{\thesubsection}{1em}{\MakeUppercase}
+
+\renewcommand{\title}{Samenvatting\\ \huge\ Gedistribueerde Systemen}
+\renewcommand{\author}{
+\textbf{Neline\ van\ Ginkel} \\
+\small $1^{e}$ Master\ Computerwetenschappen \\
+\bigskip
+
+\small\ Gedistribueerde Systemen \\
+}
+
+\renewcommand{\maketitle}{
+\thispagestyle{empty}
+\begin{flushright}
+\author
+\bigskip
+\textbf{\today}
+\end{flushright}
+\vspace{5em}
+\begin{center}
+\Huge{\title}
+\end{center}}
+
+\begin{document}
+\maketitle
+\pagebreak
+\tableofcontents
+\newpage
+
+\subfile{chapters/karakterisatie-van-gedistribueerde-systemen.tex}
+\subfile{chapters/system-models.tex}
+\stepcounter{chapter}
+\subfile{chapters/interproces-communicatie.tex}
+\subfile{chapters/remote-invocation.tex}
+\subfile{chapters/indirecte-communicatie.tex}
+\setcounter{chapter}{12}
+\addtocounter{chapter}{-1}
+\subfile{chapters/gedistribueerde-filesystemen.tex}
+\setcounter{chapter}{16}
+\addtocounter{chapter}{-1}
+\subfile{chapters/transacties-en-concurrency-control.tex}
+\subfile{chapters/gedistribueerde-transacties.tex}
+\subfile{chapters/replicatie.tex}
+
+
+\end{document}
